@@ -4,21 +4,18 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.common.api.Status
 
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.luckcheese.b2w.services.MapService
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListener {
 
-    private lateinit var mMap: GoogleMap
-
-    private var selectedPlace: Place? = null
+    private val mapService = MapService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,29 +47,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, PlaceSelectionList
         autocompleteFragment.setOnPlaceSelectedListener(this)
     }
 
-    private fun showSelectedPlace(place: Place) {
-        selectedPlace = place
-
-        place.latLng?.let {
-            val marker = MarkerOptions()
-                .position(it)
-                .title(selectedPlace?.name)
-            mMap.addMarker(marker)
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it, 16F))
-        }
-    }
-
     // ----- OnMapReadyCallback -----
 
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        selectedPlace?.let { showSelectedPlace(it) }
+        mapService.map = googleMap
     }
 
     // ----- PlaceSelectionListener -----
 
     override fun onPlaceSelected(place: Place) {
-        showSelectedPlace(place)
+        mapService.selectedPlace = place
     }
 
     override fun onError(status: Status) {
