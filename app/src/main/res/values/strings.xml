@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">RouteMe</string>
+
+    <string name="request_location_permission">Hey, libera o acesso aí!</string>
 </resources>
