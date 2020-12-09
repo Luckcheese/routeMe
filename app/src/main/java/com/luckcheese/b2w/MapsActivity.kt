@@ -1,10 +1,10 @@
 package com.luckcheese.b2w
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.common.api.Status
-
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -14,6 +14,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.luckcheese.b2w.databinding.ActivityMapsBinding
 import com.luckcheese.b2w.services.MapService
+import com.luckcheese.b2w.services.permission.LocationPermissionService
 
 class MapsActivity : AppCompatActivity(),
     OnMapReadyCallback,
@@ -21,7 +22,7 @@ class MapsActivity : AppCompatActivity(),
     View.OnClickListener
 {
 
-    private val mapService = MapService()
+    private lateinit var mapService: MapService
 
     private lateinit var binding: ActivityMapsBinding
 
@@ -40,6 +41,11 @@ class MapsActivity : AppCompatActivity(),
     }
 
     private fun setupMaps() {
+        mapService = MapService(
+            LocationServices.getFusedLocationProviderClient(this),
+            LocationPermissionService(this)
+        )
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -83,7 +89,7 @@ class MapsActivity : AppCompatActivity(),
 
     override fun onClick(view: View) {
         when(view) {
-
+            binding.myLocationBtn -> mapService.centerOnMyLocation()
         }
     }
 }
