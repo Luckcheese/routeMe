@@ -7,6 +7,7 @@ import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.libraries.places.api.model.Place
@@ -18,6 +19,7 @@ class MapService(
 ): OnSuccessListener<Location> {
 
     private val zoomLevel = 16F
+    private val cameraPadding = 200
 
     var map: GoogleMap? = null
         set(value) {
@@ -36,6 +38,10 @@ class MapService(
         }
 
     private var userLatLng: LatLng? = null
+        set(value) {
+            field = value
+            update()
+        }
 
     init {
         showUserLocation(false)
@@ -57,10 +63,17 @@ class MapService(
     private fun update() {
         if (map == null) return
 
+        map?.clear()
         selectedPlace?.latLng?.let {
             val marker = MarkerOptions()
                 .position(it)
                 .title(selectedPlace?.name ?: "")
+            map?.addMarker(marker)
+        }
+
+        userLatLng?.let {
+            val marker = MarkerOptions()
+                .position(it)
             map?.addMarker(marker)
         }
 
@@ -75,8 +88,26 @@ class MapService(
 
     private fun cameraPos(): CameraUpdate? {
         return selectedPlace?.latLng?.let { place ->
+            userLatLng?.let { user ->
+                val bounds = LatLngBounds
+                    .builder()
+                    .include(place)
+                    .include(user)
+                    .build()
+
+                return CameraUpdateFactory.newLatLngBounds(
+                    bounds,
+                    cameraPadding
+                )
+            }
+
             return CameraUpdateFactory.newLatLngZoom(
                 place,
+                zoomLevel
+            )
+        } ?: userLatLng?.let { user ->
+            return CameraUpdateFactory.newLatLngZoom(
+                user,
                 zoomLevel
             )
         }
@@ -86,13 +117,6 @@ class MapService(
 
     override fun onSuccess(userLocation: Location) {
         this.userLocation = userLocation
-
-        map?.clear()
-        userLatLng?.let {
-            val marker = MarkerOptions()
-                .position(it)
-            map?.addMarker(marker)
-        }
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
             userLatLng,
             zoomLevel
