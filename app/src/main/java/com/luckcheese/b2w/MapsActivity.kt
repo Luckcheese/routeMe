@@ -15,6 +15,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.maps.GeoApiContext
 import com.luckcheese.b2w.databinding.ActivityMapsBinding
 import com.luckcheese.b2w.services.MapService
+import com.luckcheese.b2w.services.RouteService
 import com.luckcheese.b2w.services.permission.LocationPermissionService
 
 class MapsActivity : AppCompatActivity(),
@@ -55,7 +56,8 @@ class MapsActivity : AppCompatActivity(),
 
         mapService = MapService(
             LocationServices.getFusedLocationProviderClient(this),
-            LocationPermissionService(this)
+            LocationPermissionService(this),
+            RouteService(this, geoApiContext!!)
         )
         mapService.showRouteBtn = binding.showRouteBtn
 

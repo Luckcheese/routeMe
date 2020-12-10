@@ -2,22 +2,21 @@ package com.luckcheese.b2w.services
 
 import android.annotation.SuppressLint
 import android.location.Location
+import android.util.Log
 import android.view.View
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.libraries.places.api.model.Place
 import com.luckcheese.b2w.services.permission.LocationPermissionService
 
 class MapService(
     private val locationProvider: FusedLocationProviderClient,
-    private val locationPermissionService: LocationPermissionService
+    private val locationPermissionService: LocationPermissionService,
+    private val routeService: RouteService
 ): OnSuccessListener<Location>, GoogleMap.OnMarkerClickListener {
 
     private var showingInfoWindow = false
@@ -56,6 +55,12 @@ class MapService(
 
     init {
         showUserLocation(false)
+
+        routeService.errorCallback = { e: Throwable ->
+            val errorMessage = "Error computing route between " +
+                    "$userLatLng and $selectedPlace"
+            Log.w("RouteService", errorMessage, e)
+        }
     }
 
     fun centerOnMyLocation() {
