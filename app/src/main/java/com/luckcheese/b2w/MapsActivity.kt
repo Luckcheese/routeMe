@@ -38,6 +38,7 @@ class MapsActivity : AppCompatActivity(),
 
     private fun setupView() {
         binding.myLocationBtn.setOnClickListener(this)
+        binding.showRouteBtn.setOnClickListener(this)
     }
 
     private fun setupMaps() {
@@ -45,6 +46,7 @@ class MapsActivity : AppCompatActivity(),
             LocationServices.getFusedLocationProviderClient(this),
             LocationPermissionService(this)
         )
+        mapService.showRouteBtn = binding.showRouteBtn
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -90,6 +92,7 @@ class MapsActivity : AppCompatActivity(),
     override fun onClick(view: View) {
         when(view) {
             binding.myLocationBtn -> mapService.centerOnMyLocation()
+            binding.showRouteBtn -> mapService.showRoute()
         }
     }
 }

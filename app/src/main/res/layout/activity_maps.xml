@@ -37,4 +37,12 @@
         android:layout_alignParentStart="true"
         android:src="@android:drawable/ic_menu_mylocation"/>
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/showRouteBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:layout_above="@id/myLocationBtn"
+        android:layout_alignParentStart="true"
+        android:src="@android:drawable/ic_menu_directions"/>
 </RelativeLayout>
