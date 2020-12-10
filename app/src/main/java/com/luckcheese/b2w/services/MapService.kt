@@ -8,6 +8,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.libraries.places.api.model.Place
@@ -16,14 +17,17 @@ import com.luckcheese.b2w.services.permission.LocationPermissionService
 class MapService(
     private val locationProvider: FusedLocationProviderClient,
     private val locationPermissionService: LocationPermissionService
-): OnSuccessListener<Location> {
+): OnSuccessListener<Location>, GoogleMap.OnMarkerClickListener {
 
+    private var showingInfoWindow = false
     private val zoomLevel = 16F
     private val cameraPadding = 200
 
     var map: GoogleMap? = null
         set(value) {
             field = value
+            showingInfoWindow = false
+            value?.setOnMarkerClickListener(this)
             update()
         }
     var selectedPlace: Place? = null
@@ -63,11 +67,14 @@ class MapService(
     private fun update() {
         if (map == null) return
 
+        showingInfoWindow = false
+
         map?.clear()
         selectedPlace?.latLng?.let {
             val marker = MarkerOptions()
                 .position(it)
                 .title(selectedPlace?.name ?: "")
+            selectedPlace?.address?.let { a -> marker.snippet(a) }
             map?.addMarker(marker)
         }
 
@@ -121,5 +128,20 @@ class MapService(
             userLatLng,
             zoomLevel
         ))
+    }
+
+    // ----- GoogleMap.OnMarkerClickListener -----
+
+    override fun onMarkerClick(marker: Marker): Boolean {
+        // easy way to ignore user location marker as app will always only show at most two markers
+        if (marker.title != null) {
+            if (!showingInfoWindow) {
+                marker.showInfoWindow()
+            }
+            showingInfoWindow != showingInfoWindow
+            return true
+        }
+
+        return false
     }
 }
