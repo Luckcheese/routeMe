@@ -20,6 +20,7 @@ class MapService(
 ): OnSuccessListener<Location>, GoogleMap.OnMarkerClickListener {
 
     private var showingInfoWindow = false
+    private var showingRoute: Polyline? = null
     private val zoomLevel = 16F
     private val cameraPadding = 200
 
@@ -68,7 +69,13 @@ class MapService(
     }
 
     fun showRoute() {
+        if (userLatLng == null || selectedPlace == null) return
+        if (map == null) return
 
+        routeService.getDirection(
+            userLatLng!!,
+            selectedPlace!!
+        ) { showRoute(it) }
     }
 
     @SuppressLint("MissingPermission")
@@ -88,6 +95,7 @@ class MapService(
         showRouteBtn?.visibility = if (userLatLng != null && selectedPlace != null) View.VISIBLE
         else View.GONE
 
+        showingRoute?.let { it.remove() }
         map?.clear()
         selectedPlace?.latLng?.let {
             val marker = MarkerOptions()
@@ -104,6 +112,15 @@ class MapService(
         }
 
         cameraPos()?.let { map?.moveCamera(it) }
+    }
+
+    private fun showRoute(route: List<LatLng>) {
+        showingRoute?.let { it.remove() }
+        showingRoute = map?.addPolyline(
+            PolylineOptions()
+                .clickable(false)
+                .addAll(route)
+        )
     }
 
     private fun setUserLatLng(location: Location?) {
