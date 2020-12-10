@@ -12,6 +12,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.maps.GeoApiContext
 import com.luckcheese.b2w.databinding.ActivityMapsBinding
 import com.luckcheese.b2w.services.MapService
 import com.luckcheese.b2w.services.permission.LocationPermissionService
@@ -23,6 +24,7 @@ class MapsActivity : AppCompatActivity(),
 {
 
     private lateinit var mapService: MapService
+    private var geoApiContext: GeoApiContext? = null
 
     private lateinit var binding: ActivityMapsBinding
 
@@ -36,12 +38,21 @@ class MapsActivity : AppCompatActivity(),
         setupSearch()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        geoApiContext?.shutdown()
+    }
+
     private fun setupView() {
         binding.myLocationBtn.setOnClickListener(this)
         binding.showRouteBtn.setOnClickListener(this)
     }
 
     private fun setupMaps() {
+        geoApiContext = GeoApiContext.Builder()
+            .apiKey(getString(R.string.directions_api_key))
+            .build()
+
         mapService = MapService(
             LocationServices.getFusedLocationProviderClient(this),
             LocationPermissionService(this)
